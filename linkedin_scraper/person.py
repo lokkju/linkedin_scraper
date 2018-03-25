@@ -68,7 +68,7 @@ class Person(Scraper):
         driver = self.driver
         self.name = driver.find_element_by_class_name("pv-top-card-section__name").text
         self.location = driver.find_element_by_class_name("pv-top-card-section__location").text
-        #self.photo_url = driver.find_element_by_class_name("pv-top-card-section__location").text
+        self.photo_url = re.findall(r"url\(\"(.*?)\"\)", driver.find_element_by_class_name("pv-top-card-section__photo").get_attribute("style"))
 
         # get contact info
         try:
@@ -112,8 +112,14 @@ class Person(Scraper):
             _ = WebDriverWait(driver, 3).until(EC.presence_of_element_located((By.ID, "education-section")))
             edu = driver.find_element_by_id("education-section")
             for school in edu.find_elements_by_class_name("pv-profile-section__sortable-item"):
-                university = school.find_element_by_class_name("pv-entity__school-name").text
-                degree = school.find_element_by_class_name("pv-entity__degree-name").text
+                try:
+                    university = school.find_element_by_class_name("pv-entity__school-name").text
+                except:
+                    university = None
+                try:
+                    degree = school.find_element_by_class_name("pv-entity__degree-name").text
+                except:
+                    degree = None
                 try:
                     times = school.find_element_by_class_name("pv-entity__dates").text
                     from_date, to_date, duration = time_divide(times)

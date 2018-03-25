@@ -6,6 +6,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import NoSuchElementException
 import re
 import os
 
@@ -21,6 +22,8 @@ class ProfileNotFoundException(Exception):
     """A profile could not be found for the provided identifier"""
 
 class Scraper(BaseScraper):
+    signed_in = False
+
     def __init__(self,driver=None):
         if driver is None:
             try:
@@ -41,10 +44,14 @@ class Scraper(BaseScraper):
             id = LINKEDIN_BASE_URL + "in/" + id
         p = Person(id, driver=self.driver, scrape=False)
         p.scrape(False)
+        return p
 
     def is_signed_in(self):
+        if self.signed_in:
+            return True
         try:
             self.driver.find_element_by_id("profile-nav-item")
+            self.signed_in = True
             return True
         except:
             pass
@@ -62,7 +69,10 @@ class Scraper(BaseScraper):
         if not self.is_signed_in():
             raise AuthenticationRequiredException()
         self.driver.get(LINKEDIN_EMAIL_BASE_URL + email)
-        self.driver.find_element_by_id("login-email")
+        try:
+            return self.driver.find_element_by_id("li-header").find_element_by_tag_name('a').get_attribute('href')
+        except NoSuchElementException:
+            raise ProfileNotFoundException
 
     def close(self):
         self.driver.close()
