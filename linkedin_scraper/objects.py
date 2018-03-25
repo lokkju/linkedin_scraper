@@ -66,5 +66,3 @@ class Scraper(object):
         except:
             pass
         return False
-
-

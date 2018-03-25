@@ -1,3 +1,4 @@
+# coding: utf-8
 import re
 
 def time_divide(string):
@@ -11,5 +12,3 @@ def time_divide(string):
 
     times = string.split("–")
     return (times[0].strip(), times[1].strip(), duration[1:-1])
-
-
